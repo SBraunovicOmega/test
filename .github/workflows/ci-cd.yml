@@ -16,7 +16,7 @@ jobs:
       - name: Identify affected apps
         id: identify-affected-apps
         run: |
-          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
+          CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD^ HEAD)
           AFFECTED_APPS=""
           if echo "$CHANGED_FILES" | grep -q "^app1/"; then
             AFFECTED_APPS="app1"
