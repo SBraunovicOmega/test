@@ -13,7 +13,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install dependencies
+      - name: Install dependencies for affected app
         run: npm install
 
       - name: Identify affected app
@@ -36,7 +36,10 @@ jobs:
 
       - name: Build affected app
         run: |
-          cd ${{ steps.identify-affected-app.outputs.affected_app }}
-          npm run build
+          if [[ "${{ steps.identify-affected-app.outputs.affected_app }}" == "app1" ]]; then
+            npm run build --prefix app1
+          elif [[ "${{ steps.identify-affected-app.outputs.affected_app }}" == "app2" ]]; then
+            npm run build --prefix app2
+          fi
 
       # Add deployment steps here
