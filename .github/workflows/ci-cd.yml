@@ -13,26 +13,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install dependencies for app1
+      - name: Identify affected apps
+        id: identify-affected-apps
         run: |
-          cd app1
-          npm install
+          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
+          AFFECTED_APPS=""
+          if echo "$CHANGED_FILES" | grep -q "^app1/"; then
+            AFFECTED_APPS="$AFFECTED_APPS app1"
+          fi
+          if echo "$CHANGED_FILES" | grep -q "^app2/"; then
+            AFFECTED_APPS="$AFFECTED_APPS app2"
+          fi
+          echo "::set-output name=affected_apps::$AFFECTED_APPS"
 
-      - name: Build app1
+      - name: Install dependencies and build affected apps
         run: |
-          cd app1
-          npm run build
-
-      # Add deployment steps for app1 here
-
-      - name: Install dependencies for app2
-        run: |
-          cd ../app2
-          npm install
-
-      - name: Build app2
-        run: |
-          cd ../app2
-          npm run build
-
-      # Add deployment steps for app2 here
+          for app in ${{ steps.identify-affected-apps.outputs.affected_apps }}; do
+            cd $app
+            npm install
+            npm run build
+            # Add deployment steps for each app here
+            cd ..
+          done
