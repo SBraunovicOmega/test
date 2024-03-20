@@ -14,13 +14,11 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install dependencies for app1
-        if: steps.affected-app.outputs.affected_app == 'app1'
         run: |
           cd app1
           npm install
 
       - name: Build app1
-        if: steps.affected-app.outputs.affected_app == 'app1'
         run: |
           cd app1
           npm run build
@@ -28,31 +26,13 @@ jobs:
       # Add deployment steps for app1 here
 
       - name: Install dependencies for app2
-        if: steps.affected-app.outputs.affected_app == 'app2'
         run: |
-          cd app2
+          cd ../app2
           npm install
 
       - name: Build app2
-        if: steps.affected-app.outputs.affected_app == 'app2'
         run: |
-          cd app2
+          cd ../app2
           npm run build
 
       # Add deployment steps for app2 here
-
-      - name: Identify affected app
-        id: affected-app
-        run: |
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
-          AFFECTED_APP=""
-          for file in $CHANGED_FILES; do
-            if [[ $file == "app1/"* ]]; then
-              AFFECTED_APP="app1"
-              break
-            elif [[ $file == "app2/"* ]]; then
-              AFFECTED_APP="app2"
-              break
-            fi
-          done
-          echo "::set-output name=affected_app::$AFFECTED_APP"
