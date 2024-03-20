@@ -16,15 +16,15 @@ jobs:
       - name: Identify affected apps
         id: identify-affected-apps
         run: |
-            CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
-            AFFECTED_APPS=""
-            if echo "$CHANGED_FILES" | grep -q "^app1/"; then
-              AFFECTED_APPS="$AFFECTED_APPS app1"
-            fi
-            if echo "$CHANGED_FILES" | grep -q "^app2/"; then
-              AFFECTED_APPS="$AFFECTED_APPS app2"
-            fi
-            echo "::set-output name=affected_apps::$AFFECTED_APPS"
+          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
+          AFFECTED_APPS=""
+          if echo "$CHANGED_FILES" | grep -q "^app1/"; then
+            AFFECTED_APPS="app1"
+          fi
+          if echo "$CHANGED_FILES" | grep -q "^app2/"; then
+            AFFECTED_APPS="$AFFECTED_APPS app2"
+          fi
+          echo "::set-output name=affected_apps::$AFFECTED_APPS"
 
       - name: Install dependencies and build affected apps
         run: |
@@ -33,7 +33,5 @@ jobs:
             npm install
             npm run build
             # Add deployment steps for each app here
-            # Example deployment step for deploying to a hosting service like Netlify
-            # netlify deploy --prod
             cd ..
           done
