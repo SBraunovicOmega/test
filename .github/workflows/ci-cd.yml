@@ -1,0 +1,42 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy-affected-app:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Identify affected app
+        id: identify-affected-app
+        run: |
+          # Identify affected app based on changed files
+          # Replace the following logic with your own script
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          AFFECTED_APP=""
+          for file in $CHANGED_FILES; do
+            if [[ $file == "app1/"* ]]; then
+              AFFECTED_APP="app1"
+              break
+            elif [[ $file == "app2/"* ]]; then
+              AFFECTED_APP="app2"
+              break
+            fi
+          done
+          echo "::set-output name=affected_app::$AFFECTED_APP"
+
+      - name: Build affected app
+        run: |
+          cd ${{ steps.identify-affected-app.outputs.affected_app }}
+          npm run build
+
+      # Add deployment steps here
