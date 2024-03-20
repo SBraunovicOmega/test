@@ -3,7 +3,7 @@ name: CI/CD
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build-and-deploy-affected-app:
@@ -13,14 +13,37 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install dependencies for affected app
-        run: npm install
+      - name: Install dependencies for app1
+        if: steps.affected-app.outputs.affected_app == 'app1'
+        run: |
+          cd app1
+          npm install
+
+      - name: Build app1
+        if: steps.affected-app.outputs.affected_app == 'app1'
+        run: |
+          cd app1
+          npm run build
+
+      # Add deployment steps for app1 here
+
+      - name: Install dependencies for app2
+        if: steps.affected-app.outputs.affected_app == 'app2'
+        run: |
+          cd app2
+          npm install
+
+      - name: Build app2
+        if: steps.affected-app.outputs.affected_app == 'app2'
+        run: |
+          cd app2
+          npm run build
+
+      # Add deployment steps for app2 here
 
       - name: Identify affected app
-        id: identify-affected-app
+        id: affected-app
         run: |
-          # Identify affected app based on changed files
-          # Replace the following logic with your own script
           CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
           AFFECTED_APP=""
           for file in $CHANGED_FILES; do
@@ -33,13 +56,3 @@ jobs:
             fi
           done
           echo "::set-output name=affected_app::$AFFECTED_APP"
-
-      - name: Build affected app
-        run: |
-          if [[ "${{ steps.identify-affected-app.outputs.affected_app }}" == "app1" ]]; then
-            npm run build --prefix app1
-          elif [[ "${{ steps.identify-affected-app.outputs.affected_app }}" == "app2" ]]; then
-            npm run build --prefix app2
-          fi
-
-      # Add deployment steps here
